@@ -1,0 +1,32 @@
+type Product {
+  id: ID!
+  name: String!
+  description: String!
+  price: Float!
+  stock: Int!
+}
+
+type Query {
+  product(id: ID, name: String, currency: String): Product
+  products: [Product!]!
+}
+
+type Mutation {
+  createProduct(name: String!, description: String!, price: Float!, stock: Int!): Product!
+  updateProduct(id: ID!, name: String, description: String, price: Float, stock: Int): Product!
+  deleteProduct(id: ID!): Boolean!
+  bulkUpdateProducts(products: [ProductInput!]!): BulkUpdateResponse!
+}
+
+input ProductInput {
+  id: ID!
+  name: String
+  description: String
+  price: Float
+  stock: Int
+}
+
+type BulkUpdateResponse {
+  success: Boolean!
+  failedIds: [ID!]!
+}
