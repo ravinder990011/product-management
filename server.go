@@ -7,13 +7,14 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"github.com/ravinder990011/product-management/graph"
 	"github.com/ravinder990011/product-management/internal/db"
 	"github.com/ravinder990011/product-management/internal/product"
 )
 
-const defaultPort = "8183"
+const defaultPort = "8080"
 
 func main() {
 	err := godotenv.Load()
@@ -32,11 +33,16 @@ func main() {
 		port = defaultPort
 	}
 
+	r := mux.NewRouter()
+
+	// GraphQL Playground
+	r.Handle("/", playground.Handler("GraphQL playground", "/query"))
+
+	// GraphQL Server
 	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{ProductService: productService}}))
+	r.Handle("/query", srv)
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
-
+	// Start server
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
